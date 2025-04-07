@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Dict
@@ -10,7 +12,7 @@ import uvicorn
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+PORT = int(os.environ.get("PORT", 8000))
 app = FastAPI()
 
 # Configure CORS
@@ -94,7 +96,4 @@ async def websocket_endpoint(websocket: WebSocket, client_id: str):
 
 
 if __name__ == "__main__":
-
-
-    logger.info("Starting chat server on localhost:8000")
-    uvicorn.run(app, host="localhost", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=PORT)
