@@ -19,7 +19,11 @@ function App() {
   };
 
   const connectWebSocket = () => {
-    const ws = new WebSocket(`ws://localhost:8000/ws/${username}`);
+    // For a deployed Render backend with HTTPS, always use WSS
+    const wsUrl = `wss://chatapp-l91x.onrender.com/ws/${username}`;
+    
+    console.log(`Attempting to connect to: ${wsUrl}`);
+    const ws = new WebSocket(wsUrl);
     
     ws.onopen = () => {
       console.log('Connected to websocket server');
@@ -32,9 +36,15 @@ function App() {
       setMessages(prev => [...prev, data]);
     };
     
-    ws.onclose = () => {
-      console.log('Disconnected from websocket server');
+    ws.onclose = (event) => {
+      console.log(`Disconnected from websocket server: Code: ${event.code}, Reason: ${event.reason}`);
       setConnected(false);
+      
+      // Add reconnection logic for Render free tier
+      setTimeout(() => {
+        console.log('Attempting to reconnect...');
+        connectWebSocket();
+      }, 3000);
     };
     
     ws.onerror = (error) => {
